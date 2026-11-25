@@ -13,12 +13,7 @@ import {
   X509CertificateCreateCommonParams,
   X509CertificateGenerator,
 } from "@peculiar/x509";
-import {
-  createHash,
-  createPrivateKey,
-  webcrypto,
-  X509Certificate as NodeCertificate,
-} from "crypto";
+import { createPrivateKey, webcrypto, X509Certificate as NodeCertificate } from "crypto";
 import { once } from "events";
 import fs from "fs-extra";
 import { createServer, get } from "https";
@@ -410,6 +405,11 @@ describe("certificate", () => {
           ?.names.items.some((name) => name.type === "dns" && name.value === "localhost")
       );
       chai.assert.equal(thumbprint, getCertThumbprint(certContent));
+      chai.assert.match(thumbprint, /^[a-f0-9]{40}$/);
+      chai.assert.equal(
+        thumbprint,
+        Buffer.from(await cert.getThumbprint(globalThis.crypto)).toString("hex")
+      );
       chai.assert.deepEqual(certManager.verifyCertificateContent(certContent, keyContent), [
         thumbprint,
         true,
@@ -524,7 +524,7 @@ describe("setupCertificate check only", () => {
 });
 
 function getCertThumbprint(certContent: string): string {
-  return createHash("sha1").update(new NodeCertificate(certContent).raw).digest("hex");
+  return new NodeCertificate(certContent).fingerprint.replace(/:/g, "").toLowerCase();
 }
 
 async function createLightweightCertPair(

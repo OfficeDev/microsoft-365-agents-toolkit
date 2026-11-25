@@ -30,6 +30,10 @@ localhost certificates. The 2.x release line preserves compatibility with the
 toolkit's CommonJS builds; import the existing `reflect-metadata` dependency
 before the X.509 library. Certificate paths, RSA private-key PEM format, and
 Windows/macOS trust-store commands remain unchanged.
+Thumbprints use Node's `X509Certificate.fingerprint` property to match the
+SHA-1 identifiers exposed by OS trust stores; this is an identifier, not
+certificate signing or an integrity check. Certificates remain signed with
+SHA-256.
 
 Run the certificate and prerequisite regression tests from `packages/fx-core`:
 

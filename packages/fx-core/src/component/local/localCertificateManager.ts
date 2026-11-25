@@ -18,7 +18,12 @@ import {
   X509Certificate,
   X509CertificateGenerator,
 } from "@peculiar/x509";
-import { createHash, createPrivateKey, createPublicKey, webcrypto } from "crypto";
+import {
+  createPrivateKey,
+  createPublicKey,
+  webcrypto,
+  X509Certificate as NodeCertificate,
+} from "crypto";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -190,8 +195,10 @@ export class LocalCertificateManager {
       globalThis.crypto
     );
 
-    // SHA-1 identifies certificates in OS trust stores; it is not used for signing.
-    const thumbprint = createHash("sha1").update(Buffer.from(cert.rawData)).digest("hex");
+    // Match OS trust-store identifiers, not a signature or security digest.
+    const thumbprint = new NodeCertificate(Buffer.from(cert.rawData)).fingerprint
+      .replace(/:/g, "")
+      .toLowerCase();
 
     // output
     const certContent = cert.toString("pem");
@@ -214,7 +221,9 @@ export class LocalCertificateManager {
       const privateKey = createPrivateKey(keyContent);
 
       // get thumbprint
-      const thumbprint = createHash("sha1").update(Buffer.from(cert.rawData)).digest("hex");
+      const thumbprint = new NodeCertificate(Buffer.from(cert.rawData)).fingerprint
+        .replace(/:/g, "")
+        .toLowerCase();
 
       // verify key pair
       if (
