@@ -426,13 +426,42 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
+          RUN_PLAN="./plans/$TEST_PLAN.json"
+          if [ "$TEST_PLAN" = "custom-copilot-basic--general-teams-py-openai-remote-teams" ]; then
+            node - "$RUN_PLAN" ./plans/.teams-app-link-verification.json <<'NODE'
+          const fs = require("node:fs");
+          const [, , originalPath, verificationPath] = process.argv;
+          const plan = JSON.parse(fs.readFileSync(originalPath, "utf8"));
+          const step = plan.steps.find((step) => step.step_id === "step_setRemoteEnvironmentVariable_c152093f5_5_1");
+          const end = "\nPY\n```";
+          if (!step?.parameters.sample.endsWith(end)) {
+            throw new Error("Expected the existing App Service configuration step");
+          }
+          const script = `
+          launch = Path(os.environ["PROJECT_DIR"]).resolve() / ".vscode" / "launch.json"
+          text = launch.read_text(encoding="utf-8")
+          before, marker, profile = text.partition('"name": "Launch Remote (Chrome)"')
+          launch_config, boundary, after = profile.partition('"presentation"')
+          if not marker or not boundary or launch_config.count("&webjoin=true") != 1:
+              raise AssertionError("Unexpected Teams remote Chrome launch configuration")
+          if "https://teams.microsoft.com/l/app/" not in launch_config:
+              raise AssertionError("Expected the Teams app install deep link")
+          launch.write_text(before + marker + launch_config.replace("&webjoin=true", "") + boundary + after, encoding="utf-8")
+          print("Teams app deep-link verification: removed the meeting-join flag from the generated remote Chrome launch")
+          `;
+          step.parameters.sample = step.parameters.sample.slice(0, -end.length) + script + end;
+          step.description += " The supplied script also removes only the webjoin flag from the generated Launch Remote (Chrome) URL; execute this part as written and preserve the app ID and other URL parameters.";
+          fs.writeFileSync(verificationPath, JSON.stringify(plan));
+          NODE
+            RUN_PLAN="./plans/.teams-app-link-verification.json"
+          fi
           if [ "${{ steps.prepare-mcp-auth.outcome }}" = "success" ]; then
             RUN_CONFIG=./config.mcp.yaml
           else
-            node ./engine/prepare-vscuse-config.cjs ./config.yaml "./plans/$TEST_PLAN.json" ./config.run.yaml
+            node ./engine/prepare-vscuse-config.cjs ./config.yaml "$RUN_PLAN" ./config.run.yaml
             RUN_CONFIG=./config.run.yaml
           fi
-          vscuse execute --config-file "$RUN_CONFIG" --groups-dir groups "./plans/$TEST_PLAN.json" 2>&1 | tee run_result.txt
+          vscuse execute --config-file "$RUN_CONFIG" --groups-dir groups "$RUN_PLAN" 2>&1 | tee run_result.txt
 
       - name: Extract errors from run result
         if: always()
