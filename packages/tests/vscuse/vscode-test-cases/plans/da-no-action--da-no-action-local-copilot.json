@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 82,
+    "total_steps": 83,
     "name": "da-no-action-local-copilot",
     "description": {
       "owner": "",
@@ -91,8 +91,9 @@
       "step_browserM365SignIn_submitPassword_cd3660e2b_4_3",
       "step_browserM365SignIn_assertStaySignedIn_cd3660e2b_4_3",
       "step_browserM365SignIn_confirmStaySignedIn_cd3660e2b_4_3",
-      "step_assertReady_assertReady_cd3660e2b_4_4",
-      "step_zoomOut_zoomOut_cd3660e2b_4_5",
+      "step_addAgentIfOffered_cd3660e2b_4_4",
+      "step_assertReady_assertReady_cd3660e2b_4_5",
+      "step_zoomOut_zoomOut_cd3660e2b_4_6",
       "step_sendCopilotMessage_assertInput_cd3660e2b_6_1",
       "step_sendCopilotMessage_focusInput_cd3660e2b_6_1",
       "step_sendCopilotMessage_type_cd3660e2b_6_1",
@@ -1774,11 +1775,13 @@
       ]
     },
     {
-      "step_id": "step_assertReady_assertReady_cd3660e2b_4_4",
-      "agent": "assertion",
+      "step_id": "step_addAgentIfOffered_cd3660e2b_4_4",
+      "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@assertion Microsoft 365 Copilot shows an agent's chat open in the main section with a visible message input.",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nprintf '%s' 'aW1wb3J0IGpzb24KaW1wb3J0IHN5cwppbXBvcnQgdGltZQpmcm9tIHVybGxpYi5wYXJzZSBpbXBvcnQgdXJsc3BsaXQKZnJvbSB1cmxsaWIucmVxdWVzdCBpbXBvcnQgdXJsb3BlbgoKZnJvbSB3ZWJzb2NrZXRzLnN5bmMuY2xpZW50IGltcG9ydCBjb25uZWN0CgoKIyBUaGUgREEncyAiTGF1bmNoIEFnZW50IGluIENvcGlsb3QgKENocm9tZSkiIHByb2ZpbGUgZXhwb3NlcyB0aGlzIGxvb3BiYWNrIHBvcnQuCkRFQlVHX1BPUlQgPSA5MjIzCkNPUElMT1RfSE9TVFMgPSB7ImNvcGlsb3QuY2xvdWQubWljcm9zb2Z0IiwgIm0zNjUuY2xvdWQubWljcm9zb2Z0In0KCkNIRUNLID0gIiIiKGFnZW50TmFtZSA9PiB7CiAgaWYgKGRvY3VtZW50LnZpc2liaWxpdHlTdGF0ZSAhPT0gJ3Zpc2libGUnKSByZXR1cm4gJ3dhaXRpbmcnOwogIGNvbnN0IHZpc2libGUgPSBlbCA9PiBlbC5jaGVja1Zpc2liaWxpdHkoe29wYWNpdHlQcm9wZXJ0eTogdHJ1ZSwgdmlzaWJpbGl0eVByb3BlcnR5OiB0cnVlfSk7CiAgY29uc3QgY2FuZGlkYXRlcyA9IFsuLi5kb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCdbcm9sZT0iZGlhbG9nIl0gYnV0dG9uJyldLmZpbHRlcihidXR0b24gPT4gewogICAgaWYgKGJ1dHRvbi5nZXRBdHRyaWJ1dGUoJ2FyaWEtbGFiZWwnKSAhPT0gJ0FkZCAnICsgYWdlbnROYW1lIHx8CiAgICAgICAgYnV0dG9uLmlubmVyVGV4dC50cmltKCkgIT09ICdBZGQnIHx8ICF2aXNpYmxlKGJ1dHRvbikgfHwKICAgICAgICBidXR0b24ubWF0Y2hlcygnOmRpc2FibGVkLCBbYXJpYS1kaXNhYmxlZD0idHJ1ZSJdJykpIHJldHVybiBmYWxzZTsKICAgIGNvbnN0IHJlY3QgPSBidXR0b24uZ2V0Qm91bmRpbmdDbGllbnRSZWN0KCk7CiAgICByZXR1cm4gYnV0dG9uLmNvbnRhaW5zKGRvY3VtZW50LmVsZW1lbnRGcm9tUG9pbnQocmVjdC54ICsgcmVjdC53aWR0aCAvIDIsIHJlY3QueSArIHJlY3QuaGVpZ2h0IC8gMikpOwogIH0pOwogIGlmIChjYW5kaWRhdGVzLmxlbmd0aCA9PT0gMSkgewogICAgY2FuZGlkYXRlc1swXS5jbGljaygpOwogICAgcmV0dXJuICdjbGlja2VkJzsKICB9CiAgaWYgKCFbLi4uZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnW3JvbGU9ImRpYWxvZyJdJyldLnNvbWUodmlzaWJsZSkgJiYKICAgICAgWy4uLmRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ3RleHRhcmVhLCBbY29udGVudGVkaXRhYmxlPSJ0cnVlIl0nKV0uc29tZSh2aXNpYmxlKSkgewogICAgcmV0dXJuICdjaGF0JzsKICB9CiAgcmV0dXJuICd3YWl0aW5nJzsKfSkiIiIKCgpkZWYgdHJ5X2FkZChhZ2VudF9uYW1lKToKICAgIGRlYWRsaW5lID0gdGltZS5tb25vdG9uaWMoKSArIDE1CiAgICB3aGlsZSB0aW1lLm1vbm90b25pYygpIDwgZGVhZGxpbmU6CiAgICAgICAgd2l0aCB1cmxvcGVuKGYiaHR0cDovLzEyNy4wLjAuMTp7REVCVUdfUE9SVH0vanNvbi9saXN0IiwgdGltZW91dD0zKSBhcyByZXNwb25zZToKICAgICAgICAgICAgcGFnZXMgPSBbCiAgICAgICAgICAgICAgICBwYWdlIGZvciBwYWdlIGluIGpzb24ubG9hZChyZXNwb25zZSkKICAgICAgICAgICAgICAgIGlmIHBhZ2VbInR5cGUiXSA9PSAicGFnZSIgYW5kIHVybHNwbGl0KHBhZ2VbInVybCJdKS5zY2hlbWUgPT0gImh0dHBzIgogICAgICAgICAgICAgICAgYW5kIHVybHNwbGl0KHBhZ2VbInVybCJdKS5ob3N0bmFtZSBpbiBDT1BJTE9UX0hPU1RTCiAgICAgICAgICAgIF0KICAgICAgICBpZiBsZW4ocGFnZXMpID09IDE6CiAgICAgICAgICAgIHBhZ2UgPSBwYWdlc1swXQogICAgICAgICAgICB3aXRoIGNvbm5lY3QoZiJ3czovLzEyNy4wLjAuMTp7REVCVUdfUE9SVH0vZGV2dG9vbHMvcGFnZS97cGFnZVsnaWQnXX0iLCBvcGVuX3RpbWVvdXQ9MykgYXMgd3M6CiAgICAgICAgICAgICAgICBleHByZXNzaW9uID0gKAogICAgICAgICAgICAgICAgICAgICJbJ2h0dHBzOi8vY29waWxvdC5jbG91ZC5taWNyb3NvZnQnLCdodHRwczovL20zNjUuY2xvdWQubWljcm9zb2Z0J10uaW5jbHVkZXMobG9jYXRpb24ub3JpZ2luKSIKICAgICAgICAgICAgICAgICAgICBmIiA/IHtDSEVDS30oe2pzb24uZHVtcHMoYWdlbnRfbmFtZSl9KSA6ICd3YWl0aW5nJyIKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgIHdzLnNlbmQoanNvbi5kdW1wcyh7ImlkIjogMSwgIm1ldGhvZCI6ICJSdW50aW1lLmV2YWx1YXRlIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgInBhcmFtcyI6IHsiZXhwcmVzc2lvbiI6IGV4cHJlc3Npb24sICJyZXR1cm5CeVZhbHVlIjogVHJ1ZX19KSkKICAgICAgICAgICAgICAgIHJlcGx5ID0ganNvbi5sb2Fkcyh3cy5yZWN2KHRpbWVvdXQ9MykpCiAgICAgICAgICAgICAgICBpZiAiZXJyb3IiIGluIHJlcGx5IG9yICJleGNlcHRpb25EZXRhaWxzIiBpbiByZXBseVsicmVzdWx0Il06CiAgICAgICAgICAgICAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKCJDb3VsZCBub3QgaW5zcGVjdCB0aGUgbG9jYWwgQ29waWxvdCBwcmV2aWV3IikKICAgICAgICAgICAgICAgIG91dGNvbWUgPSByZXBseVsicmVzdWx0Il1bInJlc3VsdCJdWyJ2YWx1ZSJdCiAgICAgICAgICAgICAgICBpZiBvdXRjb21lICE9ICJ3YWl0aW5nIjoKICAgICAgICAgICAgICAgICAgICByZXR1cm4gb3V0Y29tZQogICAgICAgIHRpbWUuc2xlZXAoMC41KQogICAgcmV0dXJuICJub3Qgb2ZmZXJlZCIKCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgcHJpbnQoIkNvcGlsb3Qgb3B0aW9uYWwgQWRkOiIsIHRyeV9hZGQoc3lzLmFyZ3ZbMV0pKQo=' | base64 -d | /usr/bin/python3 - '${{var:app_name}}local'\n```"
+      },
+      "description": "@code execute the supplied bash script exactly as written in the vscuse container. Do not regenerate the encoded script or click by coordinates. It clicks Add only if offered for the current Copilot agent; an absent installation prompt is normal. Require exit code 0 and the 'Copilot optional Add:' outcome.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1790,12 +1793,34 @@
       "postconditions": [],
       "tags": [
         "component:browser",
+        "host_surface:copilot",
+        "action:add-agent-if-offered",
+        "step_retry_timeout: 0"
+      ]
+    },
+    {
+      "step_id": "step_assertReady_assertReady_cd3660e2b_4_5",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Microsoft 365 Copilot shows an agent's chat open in the main section with a visible message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_addAgentIfOffered_cd3660e2b_4_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
         "action:assert-ready",
         "step_retry_timeout: 180"
       ]
     },
     {
-      "step_id": "step_zoomOut_zoomOut_cd3660e2b_4_5",
+      "step_id": "step_zoomOut_zoomOut_cd3660e2b_4_6",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -1807,7 +1832,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertReady_assertReady_cd3660e2b_4_4"
+        "step_assertReady_assertReady_cd3660e2b_4_5"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1827,7 +1852,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_zoomOut_zoomOut_cd3660e2b_4_5"
+        "step_zoomOut_zoomOut_cd3660e2b_4_6"
       ],
       "preconditions": [],
       "postconditions": [],

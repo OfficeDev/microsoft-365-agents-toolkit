@@ -1,4 +1,5 @@
 const { createHash } = require("node:crypto");
+const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const { format } = require("node:util");
 
@@ -3790,6 +3791,20 @@ ${mutation}`;
       error = append(
         output,
         render(state, profile.browserAuthentication.component, credentials),
+      );
+      if (error) return error;
+    }
+    if (
+      state.template === "da/no-action" &&
+      profileTitle === "Preview Local in Copilot (Chrome)"
+    ) {
+      error = append(
+        output,
+        render(state, "browser/copilot/add-if-offered.json.tpl", {
+          scriptBase64: readFileSync(
+            path.join(componentRoot, "browser/copilot/add-if-offered.py"),
+          ).toString("base64"),
+        }),
       );
       if (error) return error;
     }
