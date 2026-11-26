@@ -136,7 +136,7 @@ describe("SPFX-PREP-05/09: SharePoint publication preparation driver", () => {
     expect(result.result.isOk()).toBe(true);
     if (result.result.isErr()) return;
     expect(result.result.value.get("STAGED_SPPKG")).toMatch(
-      /^\.fx\/sharepoint-publications\/[0-9a-f-]+\/sharepoint\.sppkg$/
+      /^\.fx\/sharepoint-publications\/[0-9a-f-]+\/solution\.sppkg$/
     );
     expect(result.result.value.get("STAGED_APP_PACKAGE")).toMatch(
       /^\.fx\/sharepoint-publications\/[0-9a-f-]+\/application\.zip$/
