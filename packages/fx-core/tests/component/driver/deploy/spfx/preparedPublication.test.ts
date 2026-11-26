@@ -133,7 +133,7 @@ describe("SharePoint publication artifacts", () => {
     if (result.isErr()) return;
     expect(result.value).toEqual({
       sharePointPackagePath: expect.stringMatching(
-        /^\.fx\/sharepoint-publications\/[0-9a-f-]+\/sharepoint\.sppkg$/
+        /^\.fx\/sharepoint-publications\/[0-9a-f-]+\/solution\.sppkg$/
       ),
       appPackagePath: expect.stringMatching(
         /^\.fx\/sharepoint-publications\/[0-9a-f-]+\/application\.zip$/
@@ -172,7 +172,7 @@ describe("SharePoint publication artifacts", () => {
     );
     expect((await fs.readdir(stagingDirectory)).sort()).toEqual([
       "application.zip",
-      "sharepoint.sppkg",
+      "solution.sppkg",
     ]);
   });
 

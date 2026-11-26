@@ -644,7 +644,10 @@ export async function preparePublication(
     if (!isWithinProject(root, resolvedDirectory)) {
       throw new PreparedPublicationError("InvalidStagingPath", "The staging path is invalid.");
     }
-    const sharePointPath = path.join(resolvedDirectory, "sharepoint.sppkg");
+    const sharePointPath = path.join(
+      resolvedDirectory,
+      path.posix.basename(sourcePackage.value.relativePath)
+    );
     const applicationPath = path.join(resolvedDirectory, "application.zip");
     await writeAtomic(sharePointPath, sharePointPackage.value.deploymentBytes);
     if (input.signal?.aborted) {

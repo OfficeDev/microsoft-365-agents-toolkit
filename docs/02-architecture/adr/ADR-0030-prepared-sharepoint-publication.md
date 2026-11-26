@@ -52,6 +52,10 @@ remote operations and ordering.
   remote operation.
 - The `packagePath` override is optional, so existing deploy YAML remains
   compatible. Its use changes only which archive is uploaded.
+- The staged SharePoint package preserves the source SPPKG basename. The
+  existing deploy action therefore retains the app-catalog file name used by
+  legacy deployment instead of making every prepared project upload as
+  `sharepoint.sppkg`.
 - YAML order remains explicit. SharePoint action success is the prerequisite
   for the MOS3 action to run, but no additional read-back verification is
   promised.
