@@ -143,8 +143,12 @@ jobs:
       # --- Azure OpenAI used by the TEST CASES (scaffolded projects) -------------
       # Key-based endpoint; consumed via ${{env:...}} / ${{secret:...}} placeholders in
       # the plans and forwarded into the container through docker.environment.
-      AZURE_OPENAI_ENDPOINT: ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
+      AZURE_OPENAI_ENDPOINT: >-
+        ${{ vars[matrix.test_plan == 'custom-copilot-basic--general-teams-py-openai-remote-teams'
+        && 'VSCUSE_TEAMS_PYTHON_OPENAI_ENDPOINT' || 'TEST_TENANT_AZURE_OPENAI_ENDPOINT'] }}
+      AZURE_OPENAI_API_KEY: >-
+        ${{ secrets[matrix.test_plan == 'custom-copilot-basic--general-teams-py-openai-remote-teams'
+        && 'VSCUSE_TEAMS_PYTHON_OPENAI_KEY' || 'TEST_TENANT_AZURE_OPENAI_KEY'] }}
       AZURE_OPENAI_MODEL: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
       AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
 

@@ -21,6 +21,7 @@ Requirement source:
 | VTR-09 | APIM mode fails without a report key, a usable `index.html`, a response of `201`, or when a file exceeds the 100 MiB limit. It does not fall back to Azure CLI.                                             | L1      | operation-integration | required | local HTTP server                   |
 | VTR-10 | The shared workflow downloads the pinned key-capable runner, routes Foundry and Vision to APIM, and references separate keys without changing the test-case Docker environment.                             | L1      | compatibility         | required | workflow YAML and config execution  |
 | VTR-11 | APIM report generation and upload can finish without Azure DevOps enrichment when its login fails. The login failure remains visible and still fails the job.                                               | L1      | operation-integration | required | workflow YAML                       |
+| VTR-12 | Only the remote Python Teams OpenAI plan receives the Teams app's APIM endpoint and key. Other plans retain their existing test-tenant settings, and the runner's credentials stay separate.                | L1      | compatibility         | required | workflow YAML                       |
 
 ## Flow
 
@@ -81,3 +82,11 @@ For live acceptance, dispatch a focused template plan with a report email
 receiver so the summary job runs. Verify Foundry JSON and
 SSE, native OCR (not coordinate fallback), and both report links with an
 authorized reader.
+
+The `custom-copilot-basic--general-teams-py-openai-remote-teams` plan separately
+uses the APIM OpenAI-compatible API for its deployed app. Set Actions Variable
+`VSCUSE_TEAMS_PYTHON_OPENAI_ENDPOINT` to the gateway root without a trailing
+slash; the plan appends `/openai/v1`. Store the `teams-python-test` subscription
+key in Actions Secret `VSCUSE_TEAMS_PYTHON_OPENAI_KEY`. Missing app settings
+fail the existing configuration check without falling back to shared
+test-tenant settings.

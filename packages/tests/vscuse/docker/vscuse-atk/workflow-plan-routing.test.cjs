@@ -196,6 +196,30 @@ test("VTR-10: APIM uses a pinned runner with distinct keys and preserves test-ca
   });
 });
 
+test("VTR-12: only the remote Python Teams plan selects the dedicated app endpoint and key", () => {
+  const { env } = readWorkflow("ui-test-vscuse-common.yml").jobs.main;
+  const target = "custom-copilot-basic--general-teams-py-openai-remote-teams";
+  for (const [name, scope, dedicated, shared] of [
+    [
+      "AZURE_OPENAI_ENDPOINT",
+      "vars",
+      "VSCUSE_TEAMS_PYTHON_OPENAI_ENDPOINT",
+      "TEST_TENANT_AZURE_OPENAI_ENDPOINT",
+    ],
+    [
+      "AZURE_OPENAI_API_KEY",
+      "secrets",
+      "VSCUSE_TEAMS_PYTHON_OPENAI_KEY",
+      "TEST_TENANT_AZURE_OPENAI_KEY",
+    ],
+  ]) {
+    assert.equal(
+      env[name],
+      `\${{ ${scope}[matrix.test_plan == '${target}' && '${dedicated}' || '${shared}'] }}`,
+    );
+  }
+});
+
 test("VTR-11: failed Azure DevOps login remains a failure without blocking APIM summary upload", () => {
   const steps = readWorkflow("ui-test-vscuse-common.yml").jobs.report.steps;
   const login = steps.find((step) => step.id === "report-azure-login");
