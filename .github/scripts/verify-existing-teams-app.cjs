@@ -4,6 +4,24 @@ const { randomUUID } = require("node:crypto");
 const appName = "vscuse_app_6Hwdxdev";
 const teamsHosts = new Set(["teams.microsoft.com", "teams.cloud.microsoft"]);
 
+async function reportBrowserState(page) {
+  const url = new URL(page.url());
+  const activeHost = teamsHosts.has(url.hostname)
+    ? url.hostname
+    : url.hostname === "login.microsoftonline.com"
+      ? url.hostname
+      : "other";
+  const state = await page.evaluate(() => ({
+    appsButton: !!document.querySelector('[aria-label="Apps"]'),
+    chats: /\bChat\b/.test(document.body?.innerText ?? ""),
+    store: /\bManage your apps\b/.test(document.body?.innerText ?? ""),
+    loading: /\b(?:Loading|Getting things ready)\b/i.test(document.body?.innerText ?? ""),
+    loginForm: !!document.querySelector('input[name="loginfmt"], input[name="passwd"]'),
+    docReady: document.readyState,
+  }));
+  console.log(`Teams browser diagnostics: ${JSON.stringify({ activeHost, ...state })}`);
+}
+
 async function run() {
   const users = process.env.M365_USERNAMES.split(",").map((user) => user.trim());
   const user = users[14];
@@ -15,10 +33,10 @@ async function run() {
   const message = `Reply with exactly this text and nothing else: ${marker}`;
   let stage = "start Chrome";
   const browser = await chromium.launch({ channel: "chrome", headless: true });
+  const page = await browser.newPage({ locale: "en-US" });
   try {
-    const page = await browser.newPage({ locale: "en-US" });
     stage = "Teams sign-in";
-    await page.goto("https://teams.microsoft.com/v2/", { waitUntil: "domcontentloaded" });
+    await page.goto("https://teams.cloud.microsoft/v2/", { waitUntil: "domcontentloaded" });
     const loginId = page.locator('input[name="loginfmt"]');
     await loginId.waitFor({ timeout: 30000 });
     if (new URL(page.url()).hostname !== "login.microsoftonline.com") {
@@ -70,6 +88,7 @@ async function run() {
     await response.waitFor({ timeout: 90000 });
     console.log("Teams verification passed: the intended installed bot returned the unique marker.");
   } catch (error) {
+    await reportBrowserState(page);
     throw new Error(`Teams verification stopped at ${stage} (${error.name}).`);
   } finally {
     await browser.close();
