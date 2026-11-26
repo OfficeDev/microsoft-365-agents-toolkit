@@ -898,6 +898,37 @@ async function compileFixture(fileName, transform) {
   });
 }
 
+test("VCB-213: local no-action preview checks for Add before requiring chat and a reply", async () => {
+  const result = await compileFixture("da-no-action.yml", (text) => text);
+  assert.ok(result.ok, JSON.stringify(result.diagnostics));
+  const local = result.value.find(
+    ({ caseId }) => caseId === "da-no-action-local-copilot",
+  ).plan;
+  const install = (step) => step.tags.includes("action:add-agent-if-offered");
+  assert.equal(local.steps.filter(install).length, 1);
+  const index = local.steps.findIndex(install);
+  const [signIn, check, ready] = local.steps.slice(index - 1, index + 2);
+  assert.match(signIn.step_id, /confirmStaySignedIn/);
+  assert.equal(check.agent, "code");
+  assert.deepEqual(check.depends_on, [signIn.step_id]);
+  assert.deepEqual(ready.depends_on, [check.step_id]);
+  assert.match(ready.description, /chat open.*visible message input/i);
+  assert.equal(ready.continue_on_error, "false");
+  assert.ok(
+    local.steps
+      .slice(index + 2)
+      .some((step) =>
+        /current assistant turn is complete and contains a non-empty response/.test(
+          step.description,
+        ),
+      ),
+  );
+  for (const { caseId, plan } of result.value) {
+    if (caseId !== "da-no-action-local-copilot")
+      assert.ok(!plan.steps.some(install));
+  }
+});
+
 test("VCB-184 / DCR-UI-UPD-01: standalone DCR update owns three provisions and gated stages", async () => {
   const source = path.join(casesDirectory, "da-mcp-dcr-update.yml");
   assert.ok(fsSync.existsSync(source), "Missing independent DCR update case");
@@ -7634,9 +7665,9 @@ test("VCB-146: exactly ten retained DA template success plans have semantic repl
 
     const fileAssertions = plan.steps.flatMap((step) => {
       const match = step.parameters.sample?.match(/ASSERTIONS_B64="([^"]+)"/);
-      return match === undefined
-        ? []
-        : JSON.parse(Buffer.from(match[1], "base64").toString("utf8"));
+      return match
+        ? JSON.parse(Buffer.from(match[1], "base64").toString("utf8"))
+        : [];
     });
     for (const filePath of expected.filePaths) {
       assert.equal(

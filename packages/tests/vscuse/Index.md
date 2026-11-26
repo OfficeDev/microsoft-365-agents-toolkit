@@ -347,7 +347,9 @@ Trigger the workflow for the plan category via `workflow_dispatch`:
 | ---------------- | ----------------------------- | ----------------------------- |
 | `test_plan`      | Comma-separated plan names    | _(all plans in the category)_ |
 | `image_tag`      | Docker image tag              | `latest`                      |
-| `vscuse_version` | VSCUSE Python package version | `latest`                      |
 | `max_retries`    | Retry attempts (1-20)         | `7`                           |
+
+The shared CI workflow pins the VSCUSE Python package to `v0.2.67` for APIM
+key authentication. `image_tag` selects only the Docker image.
 
 **Docker image:** `ghcr.io/officedev/vscuse-atk-vscodejobs:<tag>`
