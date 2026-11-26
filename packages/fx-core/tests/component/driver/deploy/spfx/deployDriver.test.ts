@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { M365TokenProvider, ok, Platform } from "@microsoft/teamsfx-api";
+import { err, M365TokenProvider, ok, Platform, SystemError } from "@microsoft/teamsfx-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import faker from "faker";
 import fs from "fs-extra";
@@ -70,7 +70,7 @@ describe("SPFx Deploy Driver", async () => {
     await fs.remove(tempDir);
   });
 
-  it("should successfully deploy if app catelog exists - VSCode", async () => {
+  it("SPFX-PREP-08: preserves ordinary SharePoint deployment without a package override", async () => {
     const packagePath = await createPackageFile();
 
     vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue("fakeTenant");
@@ -81,9 +81,37 @@ describe("SPFx Deploy Driver", async () => {
     vi.spyOn(SPOClient, "getAppCatalogSite").mockResolvedValue("fakeAppCatelogSite");
     vi.spyOn(SPOClient, "uploadAppPackage").mockResolvedValue(undefined as any);
     vi.spyOn(SPOClient, "deployAppPackage").mockResolvedValue(undefined as any);
-
     const result = await deployDriver.run(args, mockedDriverContext);
     expect(result.isOk()).to.be.true;
+  });
+
+  it("SPFX-PREP-06: uploads the package override while retaining solution identity", async () => {
+    const stagedPackagePath = await createPackageFile();
+    const stagedPackage = await fs.readFile(stagedPackagePath);
+
+    vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue("fakeTenant");
+    const getPackagePathSpy = vi.spyOn(SPFxDeployDriver.prototype, "getPackagePath");
+    const getAppIDSpy = vi
+      .spyOn(SPFxDeployDriver.prototype, "getAppID")
+      .mockResolvedValue("configuredSolutionId");
+
+    vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("fakeSPFxToken");
+    vi.spyOn(SPOClient, "getAppCatalogSite").mockResolvedValue("fakeAppCatelogSite");
+    const uploadSpy = vi.spyOn(SPOClient, "uploadAppPackage").mockResolvedValue(undefined as any);
+    vi.spyOn(SPOClient, "deployAppPackage").mockResolvedValue(undefined as any);
+
+    const result = await deployDriver.run(
+      { ...args, packagePath: stagedPackagePath },
+      mockedDriverContext
+    );
+
+    expect(result.isOk()).to.be.true;
+    expect(getPackagePathSpy).not.toHaveBeenCalled();
+    expect(getAppIDSpy).toHaveBeenCalledWith(
+      path.join(mockedDriverContext.projectPath, args.packageSolutionPath)
+    );
+    expect(uploadSpy.mock.calls[0][1]).to.equal(path.basename(stagedPackagePath));
+    expect(uploadSpy.mock.calls[0][2]).to.deep.equal(stagedPackage);
   });
 
   it("should successfully deploy if app catelog exists - VSCode - execute", async () => {
@@ -295,6 +323,39 @@ describe("SPFx Deploy Driver", async () => {
       },
     } as any);
     await assertRejected(deployDriver.getTenant(mockM365TokenProvider()), GetTenantFailedError);
+  });
+
+  it("SPFX-PREP-08: reports the signed-in user when the tenant lookup rejects with a non-error", async () => {
+    const mockedM365TokenProvider = mockM365TokenProvider();
+    mockedM365TokenProvider.getJsonObject = vi
+      .fn()
+      .mockResolvedValue(ok({ value: { unique_name: "user@example.test" } }));
+    vi.spyOn(axios, "create").mockReturnValue({
+      defaults: { headers: { common: {} } },
+      get: () => Promise.reject("unavailable"),
+    } as any);
+
+    const promise = deployDriver.getTenant(mockedM365TokenProvider);
+
+    await assertRejected(promise, GetTenantFailedError);
+    await promise.catch((error: GetTenantFailedError) =>
+      expect(error.message).to.contain("user@example.test")
+    );
+  });
+
+  it("SPFX-PREP-08: still looks up the tenant when token claims are unavailable", async () => {
+    const mockedM365TokenProvider = mockM365TokenProvider();
+    mockedM365TokenProvider.getJsonObject = vi
+      .fn()
+      .mockResolvedValue(err(new SystemError("Test", "ClaimsUnavailable", "unavailable")));
+    vi.spyOn(axios, "create").mockReturnValue({
+      defaults: { headers: { common: {} } },
+      get: () => Promise.resolve({ data: { webUrl: "https://tenant.example.test" } }),
+    } as any);
+
+    expect(await deployDriver.getTenant(mockedM365TokenProvider)).to.equal(
+      "https://tenant.example.test"
+    );
   });
 
   it("get package path from solutionConfigPath", async () => {

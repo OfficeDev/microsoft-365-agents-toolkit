@@ -572,15 +572,7 @@ export class PackageService {
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
-      const forceRaiValidationEnabled = process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
-      const isRaiValidationEnabled =
-        forceRaiValidationEnabled === undefined
-          ? ((await TOOLS.expServiceProvider?.getTreatmentVariableAsync<boolean>(
-              TreatmentVariables.VSCodeConfig,
-              TreatmentVariables.RaiValidation,
-              true
-            )) ?? false)
-          : forceRaiValidationEnabled === "true" || forceRaiValidationEnabled === "1";
+      const isRaiValidationEnabled = await this.isRaiValidationEnabled();
       const upload = () =>
         this.axiosInstance.post("/builder/v1/users/packages", content, {
           baseURL: serviceUrl,
@@ -1273,6 +1265,17 @@ export class PackageService {
         ),
       });
     }
+  }
+
+  private async isRaiValidationEnabled(): Promise<boolean> {
+    const forceRaiValidationEnabled = process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
+    return forceRaiValidationEnabled === undefined
+      ? ((await TOOLS.expServiceProvider?.getTreatmentVariableAsync<boolean>(
+          TreatmentVariables.VSCodeConfig,
+          TreatmentVariables.RaiValidation,
+          true
+        )) ?? false)
+      : forceRaiValidationEnabled === "true" || forceRaiValidationEnabled === "1";
   }
 
   private getManifestFromZip(path: string): TeamsAppManifest | undefined {

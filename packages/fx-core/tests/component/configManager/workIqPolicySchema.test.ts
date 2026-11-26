@@ -33,16 +33,16 @@ it("WIQ-POL-01: registers the native action in the shared driver registry", () =
   expect(Container.has("workiq/publishPolicy")).toBe(false);
 });
 
-for (const [name, schema] of [
-  ["current", currentSchema],
-  ["v1.13", versionedSchema],
+for (const [name, schema, version] of [
+  ["current", currentSchema, "v1.14"],
+  ["v1.13", versionedSchema, "v1.13"],
 ] as const) {
   describe(`copilotAgent/publishPolicy ${name} schema`, () => {
     const ajv = new Ajv({ allowUnionTypes: true });
     ajv.addKeyword("deprecationMessage");
     const validate = ajv.compile(schema);
     const document = (withInputs: Record<string, unknown>, outputs?: Record<string, string>) => ({
-      version: "v1.13",
+      version,
       publish: [
         {
           uses: "copilotAgent/publishPolicy",
@@ -72,6 +72,11 @@ for (const [name, schema] of [
 
     it("WIQ-POL-01: accepts explicit inputs without requiring output mappings", () => {
       expect(validate(document(inputs))).toBe(true);
+    });
+
+    it("WIQ-POL-02: rejects a document version that does not match the schema", () => {
+      const mismatchedVersion = version === "v1.13" ? "v1.14" : "v1.13";
+      expect(validate({ ...document(inputs), version: mismatchedVersion })).toBe(false);
     });
 
     it("WIQ-POL-01: rejects the previous action spelling", () => {

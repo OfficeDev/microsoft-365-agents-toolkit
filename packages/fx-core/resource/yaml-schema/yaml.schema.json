@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.13"
+      "const": "v1.14"
     },
     "additionalMetadata": {
       "type": "object",
@@ -74,6 +74,7 @@
           { "$ref": "#/definitions/devToolInstall" },
           { "$ref": "#/definitions/teamsAppExtendToM365" },
           { "$ref": "#/definitions/spfxDeploy" },
+          { "$ref": "#/definitions/spfxPreparePublication" },
           { "$ref": "#/definitions/teamsAppCopyAppPackageToSPFx" },
           { "$ref": "#/definitions/script" },
           { "$ref": "#/definitions/apiKeyRegister" },
@@ -1444,6 +1445,56 @@
         }
       }
     },
+    "spfxPreparePublication": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Prepare separate SharePoint and application packages for ordered publication.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Prepare separate SharePoint and application packages for ordered publication.",
+          "const": "spfx/preparePublication"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["packagePath", "appPackagePath"],
+          "properties": {
+            "packagePath": {
+              "type": "string",
+              "description": "Path to the completed SharePoint package (.sppkg), relative to the project root."
+            },
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to the authoritative application package (.zip), relative to the project root."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write staged package paths to environment variables.",
+          "required": ["sharePointPackagePath", "appPackagePath"],
+          "properties": {
+            "sharePointPackagePath": { "$ref": "#/definitions/envVarName" },
+            "appPackagePath": { "$ref": "#/definitions/envVarName" }
+          }
+        }
+      }
+    },
     "spfxDeploy": {
       "type": "object",
       "additionalProperties": false,
@@ -1479,6 +1530,10 @@
             "packageSolutionPath": {
               "type": "string",
               "description": "The path to package-solution.json in SPFx project"
+            },
+            "packagePath": {
+              "type": "string",
+              "description": "Optional path to the package to upload instead of the package named in package-solution.json."
             }
           }
         }

@@ -21,6 +21,39 @@ explicitly need Teams package submission. See the
 [client publishing contract](../../docs/03-specs/operations/lifecycle/publish-client.md)
 for cancellation and error semantics.
 
+## Publishing an SPFx-backed application
+
+Projects can opt in to a SharePoint-first publication lifecycle with
+`spfx/preparePublication`, the existing `spfx/deploy`, and the existing
+`copilotAgent/publish`. Preparation creates separate staged deployment and
+application packages and returns their paths without modifying either input.
+Pass the staged SPPKG path to the optional `spfx/deploy.packagePath` input and
+the staged application ZIP to the ordinary `copilotAgent/publish.appPackagePath`
+input. YAML ordering ensures a failed SharePoint deployment prevents the later
+app submission. The existing actions retain their normal catalog, retry, and
+polling behavior; this flow does not add a journal, hash-bound writes, or
+special recovery semantics. See the
+[operation contract](../../docs/03-specs/operations/lifecycle/prepare-spfx-publication.md)
+and [ADR-0030](../../docs/02-architecture/adr/ADR-0030-prepared-sharepoint-publication.md)
+for action inputs and supported boundaries.
+
+For offline packaging, the lean
+`@microsoft/teamsfx-core/build/sharepointPackage` entry exports
+`assembleSharePointApplicationPackage({ applicationPackage, sharePointPackage })`.
+It accepts package `Buffer`s and returns tenant-neutral application ZIP bytes
+with source and output hash/identity provenance. It performs bounded local
+structural validation only, preserves the literal `{{TENANT_MCP_URL}}` in the
+managed runtime URL and every other placeholder the plugin carries, and does not
+replace unrelated text; tenant-bound preparation resolves or refuses them.
+Connector-only
+applications are supported only on manifest versions whose `ToolSource` defines
+`plugin` (currently `devPreview`); other versions return
+`UnsupportedAgentConnectorManifestVersion`. It does not
+authenticate, make network requests, initialize lifecycle services, write
+files, or create a journal. The caller owns persistence. Pass the returned ZIP to the YAML preparation action for tenant materialization
+and final publication validation; see the linked operation contract for the
+boundary between offline assembly and tenant-bound preparation.
+
 ## Updating an existing DCR configuration
 
 The opt-in `dcr/update` lifecycle action updates an existing authentication

@@ -18,6 +18,7 @@ import "./deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
 import "./deploy/azure/azureStorageDeployDriver";
 import "./deploy/azure/azureStorageStaticWebsiteConfigDriver";
 import "./deploy/spfx/deployDriver";
+import "./deploy/spfx/preparePublicationDriver";
 import "./devChannel/create";
 import "./devChannel/installApp";
 import "./devTool/installDriver";

@@ -6,6 +6,7 @@ export interface FxError extends Error {
    * Custom error details.
    */
   innerError?: any;
+  data?: Record<string, unknown>;
   /**
    * Source name of error. (plugin name, eg: tab-scaffhold-plugin)
    */
@@ -37,6 +38,7 @@ export interface ErrorOptionBase {
   message?: string;
   error?: Error;
   userData?: any;
+  data?: Record<string, unknown>;
   displayMessage?: string;
   categories?: string[];
   telemetryProperties?: Record<string, string>;
@@ -77,6 +79,7 @@ export class UserError extends Error implements FxError {
    * data that only be reported to github issue  manually by user and will not be reported as telemetry data
    */
   userData?: string;
+  data?: Record<string, unknown>;
   /**
    * message show in the UI
    */
@@ -135,6 +138,7 @@ export class UserError extends Error implements FxError {
 
     //innerError
     this.innerError = option.error;
+    this.data = option.data;
 
     //other fields
     this.helpLink = option.helpLink;
@@ -155,6 +159,7 @@ export class SystemError extends Error implements FxError {
    * Custom error details.
    */
   innerError?: any;
+  data?: Record<string, unknown>;
   /**
    * Source name of error. (plugin name, eg: tab-scaffold-plugin)
    */
@@ -230,6 +235,7 @@ export class SystemError extends Error implements FxError {
 
     //innerError
     this.innerError = option.error;
+    this.data = option.data;
 
     //other fields
     this.issueLink = option.issueLink;

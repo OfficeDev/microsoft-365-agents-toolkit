@@ -13,7 +13,7 @@ import { getLocalizedString } from "../../../../common/localizeUtils";
 import { getSPFxToken } from "../../../../common/tools";
 import { ErrorContextMW } from "../../../../common/globalVars";
 import { FileNotFoundError } from "../../../../error/common";
-import { asBoolean, asFactory, asString, wrapRun } from "../../../utils/common";
+import { asBoolean, asFactory, asOptional, asString, wrapRun } from "../../../utils/common";
 import { DriverContext } from "../../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../../middleware/addStartAndEndTelemetry";
@@ -38,9 +38,12 @@ export class SPFxDeployDriver implements StepDriver {
 
   private readonly EmptyMap = new Map<string, string>();
 
-  private asDeployArgs = asFactory<DeploySPFxArgs>({
+  private asDeployArgs = asFactory<
+    Pick<DeploySPFxArgs, "createAppCatalogIfNotExist" | "packageSolutionPath" | "packagePath">
+  >({
     createAppCatalogIfNotExist: asBoolean,
     packageSolutionPath: asString,
+    packagePath: asOptional(asString),
   });
 
   @hooks([
@@ -70,6 +73,7 @@ export class SPFxDeployDriver implements StepDriver {
       summaries: wrapContext.summaries,
     };
   }
+
   @hooks([ErrorContextMW({ source: "SPFx", component: "SPFxDeployDriver" })])
   public async deploy(
     args: DeploySPFxArgs,
@@ -77,7 +81,7 @@ export class SPFxDeployDriver implements StepDriver {
   ): Promise<Map<string, string>> {
     const deployArgs = this.asDeployArgs(args);
 
-    context.logProvider.debug(`Getting user tenant...`);
+    context.logProvider.debug("Getting user tenant...");
     const tenant = await this.getTenant(context.m365TokenProvider);
     SPOClient.setBaseUrl(tenant);
     context.logProvider.debug(`Succeeded to get user tenant: ${tenant}.`);
@@ -87,7 +91,7 @@ export class SPFxDeployDriver implements StepDriver {
       throw new GetSPOTokenFailedError();
     }
 
-    context.logProvider.verbose(`Getting SharePoint app catalog site...`);
+    context.logProvider.verbose("Getting SharePoint app catalog site...");
     let appCatalogSite = await SPOClient.getAppCatalogSite(spoToken);
     if (appCatalogSite) {
       context.logProvider.verbose(
@@ -97,24 +101,27 @@ export class SPFxDeployDriver implements StepDriver {
       context.addSummary(DeployProgressMessage.SkipCreateSPAppCatalog());
     } else {
       context.logProvider.verbose(
-        `Failed to get valid SharePoint app catalog site under current tenant.`
+        "Failed to get valid SharePoint app catalog site under current tenant."
       );
       if (deployArgs.createAppCatalogIfNotExist) {
         context.logProvider.verbose(
-          `Creating app catalog for user since there's no existing one...`
+          "Creating app catalog for user since there's no existing one..."
         );
         try {
           await SPOClient.createAppCatalog(spoToken);
           context.addSummary(DeployProgressMessage.CreateSPAppCatalog());
-          context.logProvider.verbose(`Succeeded to create app catalog.`);
-        } catch (e) {
-          throw new CreateAppCatalogFailedError(e as Error);
+          context.logProvider.verbose("Succeeded to create app catalog.");
+        } catch (error) {
+          throw new CreateAppCatalogFailedError(
+            error instanceof Error ? error : new Error(String(error))
+          );
         }
       } else {
         throw new NoValidAppCatelog();
       }
+
       let retry = 0;
-      context.logProvider.verbose(`Getting newly created app catalog site...`);
+      context.logProvider.verbose("Getting newly created app catalog site...");
       appCatalogSite = await SPOClient.getAppCatalogSite(spoToken);
       while (appCatalogSite == null && retry < Constants.APP_CATALOG_MAX_TIMES) {
         void context.logProvider.warning(
@@ -146,7 +153,12 @@ export class SPFxDeployDriver implements StepDriver {
     context.logProvider.debug(
       `Getting zipped package path from package-solution.json file under ${packageSolutionPath}...`
     );
-    const appPackage = await this.getPackagePath(packageSolutionPath);
+    const appPackage =
+      args.packagePath === undefined
+        ? await this.getPackagePath(packageSolutionPath)
+        : path.isAbsolute(args.packagePath)
+          ? args.packagePath
+          : path.resolve(context.projectPath, args.packagePath);
     if (!(await fs.pathExists(appPackage))) {
       throw new NoSPPackageError(appPackage);
     }
@@ -158,13 +170,14 @@ export class SPFxDeployDriver implements StepDriver {
       context.logProvider.verbose(`Uploading SharePoint app package ${fileName}...`);
       await SPOClient.uploadAppPackage(spoToken, fileName, bytes);
       context.addSummary(DeployProgressMessage.Upload());
-      context.logProvider.verbose(`Succeeded to upload SharePoint app package.`);
-    } catch (e: any) {
-      if (e.response?.status === 403) {
+      context.logProvider.verbose("Succeeded to upload SharePoint app package.");
+    } catch (error: unknown) {
+      if (isForbiddenResponse(error)) {
         throw new InsufficientPermissionError(appCatalogSite);
-      } else {
-        throw new UploadAppPackageFailedError(e);
       }
+      throw new UploadAppPackageFailedError(
+        error instanceof Error ? error : new Error(String(error))
+      );
     }
 
     context.logProvider.debug(
@@ -174,7 +187,7 @@ export class SPFxDeployDriver implements StepDriver {
     context.logProvider.verbose(`Deploying SharePoint app package with app id: ${appID}...`);
     await SPOClient.deployAppPackage(spoToken, appID);
     context.addSummary(DeployProgressMessage.Deploy());
-    context.logProvider.verbose(`Succeeded to deploy SharePoint app package.`);
+    context.logProvider.verbose("Succeeded to deploy SharePoint app package.");
     const guidance = getLocalizedString(
       "plugins.spfx.deployNotice",
       appPackage,
@@ -182,9 +195,9 @@ export class SPFxDeployDriver implements StepDriver {
       appCatalogSite
     );
     if (context.platform === Platform.CLI) {
-      context.ui?.showMessage("info", guidance, false);
+      await context.ui?.showMessage("info", guidance, false);
     } else {
-      context.ui?.showMessage("info", guidance, false, "OK");
+      await context.ui?.showMessage("info", guidance, false, "OK");
     }
     return this.EmptyMap;
   }
@@ -201,7 +214,12 @@ export class SPFxDeployDriver implements StepDriver {
     const tokenJsonRes = await tokenProvider.getJsonObject({
       scopes: GraphScopes,
     });
-    const username = (tokenJsonRes as any).value.unique_name;
+    const tokenJson: unknown = tokenJsonRes.isOk() ? tokenJsonRes.value : undefined;
+    const tokenValue = isRecord(tokenJson) ? tokenJson["value"] : undefined;
+    const username =
+      isRecord(tokenValue) && typeof tokenValue["unique_name"] === "string"
+        ? tokenValue["unique_name"]
+        : "";
 
     const instance = axios.create({
       baseURL: "https://graph.microsoft.com/v1.0",
@@ -210,14 +228,14 @@ export class SPFxDeployDriver implements StepDriver {
 
     let tenant = "";
     try {
-      const res = await instance.get("/sites/root?$select=webUrl");
-      if (res && res.data && res.data.webUrl) {
-        tenant = res.data.webUrl;
+      const response = await instance.get("/sites/root?$select=webUrl");
+      if (response?.data?.webUrl) {
+        tenant = response.data.webUrl;
       } else {
         throw new GetTenantFailedError(username);
       }
-    } catch (e) {
-      throw new GetTenantFailedError(username, e as Error);
+    } catch (error) {
+      throw new GetTenantFailedError(username, error instanceof Error ? error : new Error());
     }
     return tenant;
   }
@@ -236,7 +254,21 @@ export class SPFxDeployDriver implements StepDriver {
       throw new FileNotFoundError(Constants.DeployDriverName, solutionConfigPath);
     }
     const solutionConfig = await fs.readJson(solutionConfigPath);
-    const appID = solutionConfig["solution"]["id"];
-    return appID;
+    return solutionConfig["solution"]["id"];
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isForbiddenResponse(error: unknown): boolean {
+  if (!isRecord(error) || !isRecord(error["response"])) {
+    return false;
+  }
+  return error["response"]["status"] === 403;
+}
+
+export async function getSPOTenant(tokenProvider: M365TokenProvider): Promise<string> {
+  return new SPFxDeployDriver().getTenant(tokenProvider);
 }
