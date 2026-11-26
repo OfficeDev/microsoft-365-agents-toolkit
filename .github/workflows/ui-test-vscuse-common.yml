@@ -305,6 +305,8 @@ jobs:
 
       - name: Set m365 account randomly
         if: ${{ !contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot","da-mcp-server--da-mcp-dcr-update-copilot"]'), matrix.test_plan) }}
+        env:
+          TEST_PLAN: ${{ matrix.test_plan }}
         run: |
           IFS=',' read -ra users <<< "$M365_USERNAMES"
           for i in "${!users[@]}"; do
@@ -312,6 +314,13 @@ jobs:
           done
           count=${#users[@]}
           index=$((RANDOM%$count))
+          if [ "$TEST_PLAN" = "custom-copilot-basic--general-teams-py-openai-remote-teams" ]; then
+            index=14
+            if [ -z "${users[index]}" ]; then
+              echo "::error::The verification account is no longer in the configured M365 pool"
+              exit 1
+            fi
+          fi
           echo "account index: $index, total accounts: $count"
           echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
 
