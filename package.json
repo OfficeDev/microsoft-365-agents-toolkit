@@ -12,8 +12,7 @@
     "build": "pnpm -r --workspace-concurrency=8 run build",
     "precommit": "lint-staged",
     "clean": "pnpm -r exec rimraf node_modules",
-    "prepare": "husky install",
-    "test:security-backports": "node --test .github/scripts/node-forge-backport.test.cjs"
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.1",
@@ -57,7 +56,6 @@
       "minimatch@^6.0.0": "6.2.2",
       "minimatch@^8.0.0": "8.0.6",
       "minimatch@^9.0.0": "9.0.9",
-      "node-forge@^1.0.0": "1.4.0",
       "picomatch@^2.0.0": "2.3.2",
       "prismjs@1.27.0": "1.30.0",
       "shell-quote@^1.0.0": "1.11.0",
@@ -71,9 +69,6 @@
       "ws@^8.0.0": "8.21.0",
       "yaml@1.10.2": "1.10.3",
       "yaml@2.2.2": "2.8.3"
-    },
-    "patchedDependencies": {
-      "node-forge@1.4.0": "patches/node-forge@1.4.0.patch"
     }
   }
 }
