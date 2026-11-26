@@ -4,6 +4,41 @@ const { randomUUID } = require("node:crypto");
 const appName = "vscuse_app_6Hwdxdev";
 const teamsHosts = new Set(["teams.microsoft.com", "teams.cloud.microsoft"]);
 
+function serviceFamily(url) {
+  const host = new URL(url).hostname;
+  if (teamsHosts.has(host) || host.endsWith(".teams.microsoft.com")) return "teams";
+  if (host.endsWith(".microsoftonline.com") || host.endsWith(".msauth.net")) return "entra";
+  if (host.endsWith(".microsoft.com") || host.endsWith(".cloud.microsoft")) return "microsoft";
+  if (host.endsWith(".office.net") || host.endsWith(".office.com")) return "office";
+  if (host.endsWith(".skype.com")) return "skype";
+  return "other";
+}
+
+function observeBrowser(page) {
+  const counts = new Map();
+  const record = (event) => counts.set(event, (counts.get(event) ?? 0) + 1);
+  page.on("requestfailed", (request) => {
+    const error = request.failure()?.errorText ?? "";
+    const code = /^net::ERR_[A-Z0-9_]+$/.test(error) ? error : "unknown";
+    record(`failed:${serviceFamily(request.url())}:${request.resourceType()}:${code}`);
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) {
+      record(`http:${serviceFamily(response.url())}:${response.request().resourceType()}:${response.status()}`);
+    }
+  });
+  page.on("pageerror", (error) => {
+    const name = ["TypeError", "ReferenceError", "SyntaxError", "NetworkError"].includes(error.name)
+      ? error.name
+      : "Error";
+    record(`javascript:${name}`);
+  });
+  return () => {
+    const events = [...counts].sort((left, right) => right[1] - left[1]).slice(0, 18);
+    console.log(`Teams transport diagnostics: ${JSON.stringify(events)}`);
+  };
+}
+
 async function reportBrowserState(page) {
   const url = new URL(page.url());
   const activeHost = teamsHosts.has(url.hostname)
@@ -17,9 +52,20 @@ async function reportBrowserState(page) {
     store: /\bManage your apps\b/.test(document.body?.innerText ?? ""),
     loading: /\b(?:Loading|Getting things ready)\b/i.test(document.body?.innerText ?? ""),
     loginForm: !!document.querySelector('input[name="loginfmt"], input[name="passwd"]'),
+    retryPrompt: /\b(?:Try again|Refresh the page)\b/i.test(document.body?.innerText ?? ""),
+    accountPrompt: /\b(?:Pick an account|Stay signed in|More information required)\b/i.test(document.body?.innerText ?? ""),
+    unsupportedBrowser: /\b(?:browser isn.t supported|unsupported browser|update your browser)\b/i.test(document.body?.innerText ?? ""),
+    errorPrompt: /\b(?:Something went wrong|We ran into a problem|Can.t connect|Couldn.t connect)\b/i.test(document.body?.innerText ?? ""),
+    authPolicyCode: (document.body?.innerText ?? "").match(/\bAADSTS[0-9]+\b/)?.[0] ?? null,
+    renderedTextLength: document.body?.innerText.length ?? 0,
     docReady: document.readyState,
   }));
-  console.log(`Teams browser diagnostics: ${JSON.stringify({ activeHost, ...state })}`);
+  const destination = ["/", "/v2", "/v2/"].includes(url.pathname)
+    ? "home"
+    : url.pathname.startsWith("/l/")
+      ? "deep-link"
+      : "other";
+  console.log(`Teams browser diagnostics: ${JSON.stringify({ activeHost, destination, ...state })}`);
 }
 
 async function run() {
@@ -34,6 +80,7 @@ async function run() {
   let stage = "start Chrome";
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const page = await browser.newPage({ locale: "en-US" });
+  const reportTransport = observeBrowser(page);
   try {
     stage = "Teams sign-in";
     await page.goto("https://teams.cloud.microsoft/v2/", { waitUntil: "domcontentloaded" });
@@ -88,6 +135,7 @@ async function run() {
     await response.waitFor({ timeout: 90000 });
     console.log("Teams verification passed: the intended installed bot returned the unique marker.");
   } catch (error) {
+    reportTransport();
     await reportBrowserState(page);
     throw new Error(`Teams verification stopped at ${stage} (${error.name}).`);
   } finally {
