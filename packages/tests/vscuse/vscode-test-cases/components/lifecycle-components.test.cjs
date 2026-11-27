@@ -9,6 +9,9 @@ const substitutions = {
   accountPassword: "${{secret:M365_ACCOUNT_PASSWORD}}",
   actionLabel: 'Provision "now"',
   commandTitle: "Debug: Select and Start Debugging",
+  completionAssertion:
+    "@assertion the Copilot action-consent Allow button is no longer visible.",
+  completionState: "action-consent-dismissed",
   convergedSubject: "the Microsoft Teams conversation is open",
   destination: "chat",
   dialogTitle: "Confirm provisioning\nfor dev",
