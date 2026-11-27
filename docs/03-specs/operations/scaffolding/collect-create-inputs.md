@@ -182,11 +182,23 @@ No generic surface or walker branches on a template ID.
 | API-02 | L1 | compatibility | required | literal declarations, package validation and actual create walk | The new provider is referenced by an old-floor package or loaded by a 6.12.0 engine; a current create walk opens a newer-floor package | Reject through the existing version gate before prompts or provider calls; accept at 6.13.0; existing provider IDs, floors and output contracts remain unchanged. |
 | API-03 | L1 | operation-integration | required | Custom API questions with default registry | The shipped Custom API question selects its operations | It uses the Teams AI provider without engine/template-ID special cases; returned source metadata uses the declared namespace. |
 
+### Question metadata boundary
+
+Before providers or prompts, the existing question loader validates the shapes
+of consumed fields, including expanded fragments, nested options, validation
+references, input-box metadata and expression nodes. This is structural loading,
+not the full template authoring schema/registry/version gate. Unknown extension
+fields remain readable, and static inspection still accepts future engine floors.
+
+| ID | Runtime | Purpose | Gate | Harness | Given / When | Then |
+| --- | --- | --- | --- | --- | --- | --- |
+| CCI-29 | L1 | operation-integration | required | fragment loader and real create-input entry over a synthetic archive | A top-level or fragment question has malformed consumed fields or nested expressions | Return PackageFileInvalid before UI/provider calls, never a TypeError rejection. Valid scalar/list metadata, fragments and existing packages remain readable. |
+
 ## Flow
 
 ```mermaid
 flowchart TD
-  start(["runCreateInputs(package bytes, locator, entryParams, ui, deps)"]) --> metadata["openDeclarativePackageMetadata: parse descriptor + questions"]
+  start(["runCreateInputs(package bytes, locator, entryParams, ui, deps)"]) --> metadata["openDeclarativePackageMetadata: parse descriptor + validate question shapes and fragments"]
   metadata --> version{"create input entry: minimum engine version supported?"}
   version -->|no| upgrade["upgrade error before prompts or provider calls"]
   version -->|yes| q["parsed questions"]
