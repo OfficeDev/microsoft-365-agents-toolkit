@@ -96,6 +96,24 @@ Partner can customize the generator by the following APIs:
 - `getTemplateNames()`: Performs preprocessing and maps user inputs to template names, returning a replacement map for resolving placeholders in template files.
 - `post()`: Executes post-processing steps.
 
+## Release Version Hooks
+
+The `version` script synchronizes template SDK dependencies and the fx-core template
+configuration before the `postversion` build. The SDK sync list,
+`templatesDependOnSDK` in [package.json](./package.json), must contain only existing,
+active template directories that depend on the in-repo runtime SDKs. It is currently
+empty because those templates have been retired; do not add entries for removed
+templates or templates under `unused/`.
+
+The [version hook](../.github/scripts/pkg-version.sh) stops on command failures so a
+failed sync cannot be masked by a later successful Git command.
+
+Run the regression tests from the repository root with Node.js and Bash available:
+
+```bash
+node --test .github/scripts/tests/pkg-version.test.cjs
+```
+
 After defining a custom generator, register it in the global generator list (`packages/fx-core/src/component/generator/generatorProvider.ts`):
 
 ![image](https://github.com/user-attachments/assets/f1fcbc66-8350-4891-b1f1-cbde54d8f796)

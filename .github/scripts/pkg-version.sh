@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 REPO_ROOT_DIR=$(cd $SCRIPT_DIR/../.. && pwd)
 TEMPLATE_DIR=$(cd $REPO_ROOT_DIR/templates && pwd)
