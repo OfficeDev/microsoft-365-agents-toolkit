@@ -53,12 +53,12 @@ describe("FeatureFlagManager", () => {
     const stringRes = featureFlagManager.getStringValue(FeatureFlags.MCPForDADCR);
     chai.assert.equal(stringRes, "false");
   });
-  it("V4Enabled defaults to false", async () => {
+  it("V4Enabled defaults to true", async () => {
     mockedEnvRestore = mockedEnv({ [FeatureFlags.V4Enabled.name]: undefined });
     const booleanRes = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
-    chai.assert.isFalse(booleanRes);
+    chai.assert.isTrue(booleanRes);
     const stringRes = featureFlagManager.getStringValue(FeatureFlags.V4Enabled);
-    chai.assert.equal(stringRes, "false");
+    chai.assert.equal(stringRes, "true");
   });
   it("CLI-ACTION-10: CLI action execution is registered with a default-off flag", () => {
     mockedEnvRestore = mockedEnv({ TEAMSFX_CLI_EXECUTE_ACTION: undefined });
